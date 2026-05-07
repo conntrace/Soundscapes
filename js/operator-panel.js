@@ -2,6 +2,7 @@
 // Wires the side-drawer admin controls.
 
 import { CONFIG } from './config.js';
+import { SCENES, SCENE_ORDER, ACTIVE_SCENE_ID, navigateToScene } from './scenes/index.js';
 
 export class OperatorPanel {
   constructor({ ensemble, audioEngine, clock, demoMode, transport }) {
@@ -31,6 +32,22 @@ export class OperatorPanel {
     document.getElementById('op-start').addEventListener('click', () => this.transport.start());
     document.getElementById('op-pause').addEventListener('click', () => this.transport.pause());
     document.getElementById('op-reset').addEventListener('click', () => this.transport.reset());
+
+    // Scene selector — populate from registry, navigate on change
+    const sceneSel = document.getElementById('op-scene');
+    if (sceneSel) {
+      sceneSel.innerHTML = '';
+      for (const id of SCENE_ORDER) {
+        const opt = document.createElement('option');
+        opt.value = id;
+        opt.textContent = SCENES[id].label;
+        if (id === ACTIVE_SCENE_ID) opt.selected = true;
+        sceneSel.appendChild(opt);
+      }
+      sceneSel.addEventListener('change', () => {
+        navigateToScene(sceneSel.value);
+      });
+    }
 
     const spreadInput = document.getElementById('op-spread');
     spreadInput.value = String(CONFIG.maxSpread);

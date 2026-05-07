@@ -1,23 +1,19 @@
-// Soundscapes — runtime configuration
+// Soundscapes — runtime configuration.
+//
+// Scene-specific data (performer roster, sample manifest, cells) lives
+// in js/scenes/. CONFIG holds runtime tunables and exposes the active
+// scene via getters so other modules can pull through it.
+
+import { ACTIVE_SCENE, ACTIVE_SCENE_ID } from './scenes/index.js';
 
 export const CONFIG = {
-  scene: 'forest-dawn',
-  sceneLabel: 'Forest at Dawn',
+  // Scene identity (read-only — flip via ?scene= URL param)
+  get scene() { return ACTIVE_SCENE_ID; },
+  get sceneLabel() { return ACTIVE_SCENE.label; },
+  get performers() { return ACTIVE_SCENE.performers; },
+  get performerCount() { return ACTIVE_SCENE.performers.length; },
 
-  // 7 performers, each is a sound layer category
-  performerCount: 7,
-
-  performers: [
-    { id: 0, key: '1', name: 'Birds',      color: '#f4d35e', categoryId: 'birds' },
-    { id: 1, key: '2', name: 'Wind',       color: '#a4c2c6', categoryId: 'wind' },
-    { id: 2, key: '3', name: 'Water',      color: '#5da9e9', categoryId: 'water' },
-    { id: 3, key: '4', name: 'Insects',    color: '#c1d36b', categoryId: 'insects' },
-    { id: 4, key: '5', name: 'Amphibians', color: '#8b9d4e', categoryId: 'amphibians' },
-    { id: 5, key: '6', name: 'Leaves',     color: '#b08968', categoryId: 'leaves' },
-    { id: 6, key: '7', name: 'Atmosphere', color: '#7a708a', categoryId: 'atmosphere' },
-  ],
-
-  // Cells per performer
+  // Cells per performer (consistent across scenes for now)
   totalCells: 5,
 
   // Spread: most-advanced performer cannot be more than this many cells

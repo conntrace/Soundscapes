@@ -1,11 +1,13 @@
 # Sample Credits
 
-All sound files in this directory are sourced from **[BigSoundBank](https://bigsoundbank.com/)** by Joseph SARDIN, released under **CC0 1.0 Universal** (public domain — no attribution required, no restrictions on commercial or personal use).
+All sound files in `samples/` are sourced from **[BigSoundBank](https://bigsoundbank.com/)** by Joseph SARDIN, released under **CC0 1.0 Universal** (public domain — no attribution required, no restrictions on commercial or personal use).
 
 > "Free and royalty-free... usable for commercial or personal projects worldwide without licensing fees."
 > — bigsoundbank.com
 
 The files have been trimmed to ~30s representative loops and re-encoded to mono 128 kbps MP3 to keep the repo small. The original full-length sources are available at the URLs below.
+
+## Forest at Dawn — `samples/forest-dawn/`
 
 | File | BigSoundBank ID | Source URL |
 |---|---|---|
@@ -30,3 +32,32 @@ The files have been trimmed to ~30s representative loops and re-encoded to mono 
 | thunder.mp3 | 2718 | https://bigsoundbank.com/UPLOAD/mp3/2718.mp3 |
 | tawny-owl.mp3 | 1764 | https://bigsoundbank.com/UPLOAD/mp3/1764.mp3 |
 | long-eared-owl.mp3 | 0936 | https://bigsoundbank.com/UPLOAD/mp3/0936.mp3 |
+
+## City Intersection — `samples/city-intersection/`
+
+| File | BigSoundBank ID | Source URL |
+|---|---|---|
+| aubervilliers-street.mp3 | 2722 | https://bigsoundbank.com/UPLOAD/mp3/2722.mp3 |
+| cheerful-street.mp3 | 2372 | https://bigsoundbank.com/UPLOAD/mp3/2372.mp3 |
+| paris-by-night.mp3 | 0680 | https://bigsoundbank.com/UPLOAD/mp3/0680.mp3 |
+| pedestrian-place.mp3 | 0526 | https://bigsoundbank.com/UPLOAD/mp3/0526.mp3 |
+| car-passing.mp3 | 2987 | https://bigsoundbank.com/UPLOAD/mp3/2987.mp3 |
+| car-engine.mp3 | 0291 | https://bigsoundbank.com/UPLOAD/mp3/0291.mp3 |
+| car-departure.mp3 | 0189 | https://bigsoundbank.com/UPLOAD/mp3/0189.mp3 |
+| screeching-tires.mp3 | 2368 | https://bigsoundbank.com/UPLOAD/mp3/2368.mp3 |
+| car-horn-1.mp3 | 0258 | https://bigsoundbank.com/UPLOAD/mp3/0258.mp3 |
+| car-horn-2.mp3 | 0969 | https://bigsoundbank.com/UPLOAD/mp3/0969.mp3 |
+| horn-short.mp3 | 3506 | https://bigsoundbank.com/UPLOAD/mp3/3506.mp3 |
+| truck-horn.mp3 | 2721 | https://bigsoundbank.com/UPLOAD/mp3/2721.mp3 |
+| pneumatic-horn.mp3 | 1830 | https://bigsoundbank.com/UPLOAD/mp3/1830.mp3 |
+| vehicle-siren.mp3 | 2731 | https://bigsoundbank.com/UPLOAD/mp3/2731.mp3 |
+| ambulance-siren.mp3 | 1463 | https://bigsoundbank.com/UPLOAD/mp3/1463.mp3 |
+| ambulance-passage.mp3 | 2031 | https://bigsoundbank.com/UPLOAD/mp3/2031.mp3 |
+| gendarmerie-passage.mp3 | 2029 | https://bigsoundbank.com/UPLOAD/mp3/2029.mp3 |
+| footsteps.mp3 | 0514 | https://bigsoundbank.com/UPLOAD/mp3/0514.mp3 |
+| fast-footsteps.mp3 | 1318 | https://bigsoundbank.com/UPLOAD/mp3/1318.mp3 |
+| london-bus.mp3 | 0644 | https://bigsoundbank.com/UPLOAD/mp3/0644.mp3 |
+| jackhammer.mp3 | 3125 | https://bigsoundbank.com/UPLOAD/mp3/3125.mp3 |
+| roadworks.mp3 | 0631 | https://bigsoundbank.com/UPLOAD/mp3/0631.mp3 |
+| pigeons.mp3 | 0841 | https://bigsoundbank.com/UPLOAD/mp3/0841.mp3 |
+| motorcycle.mp3 | 0281 | https://bigsoundbank.com/UPLOAD/mp3/0281.mp3 |

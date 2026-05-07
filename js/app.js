@@ -77,6 +77,13 @@ function initKeys() {
 }
 
 async function boot() {
+  // Reflect active scene in title/labels
+  document.title = `Soundscapes — ${CONFIG.sceneLabel}`;
+  const subtitle = document.querySelector('.start-subtitle');
+  if (subtitle) subtitle.textContent = CONFIG.sceneLabel;
+  const sceneStatus = el('status-scene');
+  if (sceneStatus) sceneStatus.textContent = CONFIG.sceneLabel;
+
   state.ensemble = new Ensemble();
   state.clock = new Clock();
   state.audioEngine = new AudioEngine(state.ensemble);
