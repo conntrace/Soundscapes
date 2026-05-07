@@ -61,3 +61,32 @@ The files have been trimmed to ~30s representative loops and re-encoded to mono 
 | roadworks.mp3 | 0631 | https://bigsoundbank.com/UPLOAD/mp3/0631.mp3 |
 | pigeons.mp3 | 0841 | https://bigsoundbank.com/UPLOAD/mp3/0841.mp3 |
 | motorcycle.mp3 | 0281 | https://bigsoundbank.com/UPLOAD/mp3/0281.mp3 |
+
+## Mall Food Court — `samples/mall-food-court/`
+
+| File | BigSoundBank ID | Source URL |
+|---|---|---|
+| restaurant-conversations.mp3 | 3542 | https://bigsoundbank.com/UPLOAD/mp3/3542.mp3 |
+| outdoor-market.mp3 | 2728 | https://bigsoundbank.com/UPLOAD/mp3/2728.mp3 |
+| outside-talks.mp3 | 2969 | https://bigsoundbank.com/UPLOAD/mp3/2969.mp3 |
+| supermarket.mp3 | 0578 | https://bigsoundbank.com/UPLOAD/mp3/0578.mp3 |
+| plate-stack.mp3 | 1199 | https://bigsoundbank.com/UPLOAD/mp3/1199.mp3 |
+| plates-manipulations.mp3 | 1187 | https://bigsoundbank.com/UPLOAD/mp3/1187.mp3 |
+| cutlery-on-table.mp3 | 1192 | https://bigsoundbank.com/UPLOAD/mp3/1192.mp3 |
+| glasses-manipulations.mp3 | 1203 | https://bigsoundbank.com/UPLOAD/mp3/1203.mp3 |
+| register-beep-1.mp3 | 1417 | https://bigsoundbank.com/UPLOAD/mp3/1417.mp3 |
+| register-beep-2.mp3 | 3527 | https://bigsoundbank.com/UPLOAD/mp3/3527.mp3 |
+| supermarket-registers.mp3 | 0579 | https://bigsoundbank.com/UPLOAD/mp3/0579.mp3 |
+| deep-fryer.mp3 | 2505 | https://bigsoundbank.com/UPLOAD/mp3/2505.mp3 |
+| deep-fryer-2.mp3 | 2509 | https://bigsoundbank.com/UPLOAD/mp3/2509.mp3 |
+| frying-pan.mp3 | 0144 | https://bigsoundbank.com/UPLOAD/mp3/0144.mp3 |
+| fried-egg.mp3 | 0485 | https://bigsoundbank.com/UPLOAD/mp3/0485.mp3 |
+| kindergarten.mp3 | 2740 | https://bigsoundbank.com/UPLOAD/mp3/2740.mp3 |
+| children-laughter.mp3 | 1660 | https://bigsoundbank.com/UPLOAD/mp3/1660.mp3 |
+| crying-baby.mp3 | 0233 | https://bigsoundbank.com/UPLOAD/mp3/0233.mp3 |
+| kids-screaming.mp3 | 1148 | https://bigsoundbank.com/UPLOAD/mp3/1148.mp3 |
+| coffee-grinder.mp3 | 0167 | https://bigsoundbank.com/UPLOAD/mp3/0167.mp3 |
+| nespresso.mp3 | 3047 | https://bigsoundbank.com/UPLOAD/mp3/3047.mp3 |
+| italian-coffee-maker.mp3 | 0469 | https://bigsoundbank.com/UPLOAD/mp3/0469.mp3 |
+| escalator.mp3 | 3064 | https://bigsoundbank.com/UPLOAD/mp3/3064.mp3 |
+| fountain.mp3 | 1081 | https://bigsoundbank.com/UPLOAD/mp3/1081.mp3 |

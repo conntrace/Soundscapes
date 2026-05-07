@@ -5,13 +5,15 @@
 
 import { SCENE as forestDawn } from './forest-dawn.js';
 import { SCENE as cityIntersection } from './city-intersection.js';
+import { SCENE as mallFoodCourt } from './mall-food-court.js';
 
 export const SCENES = {
   'forest-dawn': forestDawn,
   'city-intersection': cityIntersection,
+  'mall-food-court': mallFoodCourt,
 };
 
-export const SCENE_ORDER = ['forest-dawn', 'city-intersection'];
+export const SCENE_ORDER = ['forest-dawn', 'city-intersection', 'mall-food-court'];
 
 function resolveSceneId() {
   const params = new URLSearchParams(window.location.search);

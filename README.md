@@ -38,6 +38,20 @@ Seven performers; visualization shows a night skyline with apartment windows lig
 | Construction | silence → distant works → nearby works → jackhammer → demolition |
 | Atmosphere | silence → pigeons → distant motorcycle → street alive → urban roar |
 
+### Mall Food Court — `?scene=mall-food-court`
+
+Seven performers; visualization shows a warm fluorescent-lit indoor scene with food kiosk silhouettes whose menu boards progressively light up (warm reds and oranges) as density grows, plus a row of bright ceiling pendant lights and dark table blobs in the foreground.
+
+| Performer | Cells |
+|---|---|
+| Crowd | silence → distant murmur → small group → busy lunch → peak crowd |
+| Dishes | silence → someone clears → tray drops → busy bussing → lunch rush |
+| Registers | silence → a beep → busy register → full row → rush |
+| Kitchen | silence → faint sizzle → cooking → busy kitchen → lunch rush |
+| Children | silence → a kid in the distance → laughter → kids being kids → pure chaos |
+| Coffee | silence → a coffee being made → regular orders → busy bar → morning rush |
+| Ambience | silence → distant escalator → fountain nearby → full mall → bustling complex |
+
 ## How to run
 
 It's a static site — no build step.
