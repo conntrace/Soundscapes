@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Soundscapes — Forest at Dawn</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Start Overlay -->
+    <div id="start-overlay">
+      <div class="start-content">
+        <h1 class="start-title">Soundscapes</h1>
+        <p class="start-subtitle">Forest at Dawn</p>
+        <button id="btn-play-demo" class="play-btn" aria-label="Play Demo">
+          <svg viewBox="0 0 64 64" width="64" height="64">
+            <circle cx="32" cy="32" r="30" fill="none" stroke="currentColor" stroke-width="2"/>
+            <polygon points="26,20 26,44 46,32" fill="currentColor"/>
+          </svg>
+        </button>
+        <p class="start-hint">Press to start the scene &middot; Space to play manually</p>
+      </div>
+    </div>
+
+    <!-- Scene Visualization -->
+    <section id="scene-section">
+      <canvas id="scene-canvas"></canvas>
+    </section>
+
+    <!-- Performer Stations -->
+    <section id="button-section">
+      <div id="button-row"></div>
+    </section>
+
+    <!-- Status Bar -->
+    <div id="status-bar">
+      <div class="status-item">
+        <span class="status-label">Scene</span>
+        <span class="status-value" id="status-scene">Forest at Dawn</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">Spread</span>
+        <span class="status-value" id="status-spread">0 / 3</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">Range</span>
+        <span class="status-value" id="status-range">1 - 1</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">Mode</span>
+        <span class="status-value" id="status-mode">Stopped</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">Pulse</span>
+        <span class="status-value" id="status-pulse">-</span>
+      </div>
+      <a href="#" id="op-link" class="status-item admin-link">Operator</a>
+    </div>
+
+    <!-- Operator Panel -->
+    <div id="operator-panel">
+      <div id="operator-content">
+        <h2>Operator Panel</h2>
+
+        <div class="op-section">
+          <h3>Transport</h3>
+          <div class="op-row">
+            <button class="op-btn primary" id="op-start">Start</button>
+            <button class="op-btn" id="op-pause">Pause</button>
+            <button class="op-btn" id="op-reset">Reset</button>
+          </div>
+        </div>
+
+        <div class="op-section">
+          <h3>Configuration</h3>
+          <div class="op-row">
+            <label>Scene</label>
+            <select id="op-scene">
+              <option value="forest-dawn">Forest at Dawn</option>
+            </select>
+          </div>
+          <div class="op-row">
+            <label>Total Cells (per performer)</label>
+            <input type="number" id="op-cells" value="5" min="3" max="10" disabled>
+          </div>
+          <div class="op-row">
+            <label>Max Spread</label>
+            <input type="number" id="op-spread" value="3" min="1" max="6">
+          </div>
+          <div class="op-row">
+            <label>End Behavior</label>
+            <select id="op-end-behavior">
+              <option value="hold" selected>Hold</option>
+              <option value="wrap">Wrap</option>
+              <option value="resetAll">Reset All</option>
+            </select>
+          </div>
+          <div class="op-row">
+            <label>Master Volume</label>
+            <input type="range" id="op-volume" min="0" max="100" value="70">
+          </div>
+        </div>
+
+        <div class="op-section">
+          <h3>Demo Mode</h3>
+          <div class="op-row">
+            <label>Auto-advance</label>
+            <button class="op-btn" id="op-demo">Off</button>
+          </div>
+        </div>
+
+        <p class="op-hint">Esc closes &middot; D toggles demo &middot; Keys 1–8 advance performers &middot; Space starts/pauses</p>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
