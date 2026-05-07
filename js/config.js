@@ -4,8 +4,8 @@ export const CONFIG = {
   scene: 'forest-dawn',
   sceneLabel: 'Forest at Dawn',
 
-  // 8 performers, each is a sound layer category
-  performerCount: 8,
+  // 7 performers, each is a sound layer category
+  performerCount: 7,
 
   performers: [
     { id: 0, key: '1', name: 'Birds',      color: '#f4d35e', categoryId: 'birds' },
@@ -15,10 +15,9 @@ export const CONFIG = {
     { id: 4, key: '5', name: 'Amphibians', color: '#8b9d4e', categoryId: 'amphibians' },
     { id: 5, key: '6', name: 'Leaves',     color: '#b08968', categoryId: 'leaves' },
     { id: 6, key: '7', name: 'Atmosphere', color: '#7a708a', categoryId: 'atmosphere' },
-    { id: 7, key: '8', name: 'Creatures',  color: '#c97b63', categoryId: 'creatures' },
   ],
 
-  // Cells per performer (used by ensemble for end-of-progression)
+  // Cells per performer
   totalCells: 5,
 
   // Spread: most-advanced performer cannot be more than this many cells
@@ -37,6 +36,6 @@ export const CONFIG = {
   demoTapProbability: 0.18,
 
   // The "global pulse" — base loop time. Individual cells can be longer
-  // multiples of this. 4-second pulse keeps things slow and ambient.
+  // multiples of this.
   pulseSec: 4,
 };

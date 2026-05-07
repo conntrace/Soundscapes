@@ -121,7 +121,7 @@ html, body {
 
 #button-row {
   display: grid;
-  grid-template-columns: repeat(8, 1fr);
+  grid-template-columns: repeat(7, 1fr);
   gap: 0.7rem;
   max-width: 1400px;
   margin: 0 auto;

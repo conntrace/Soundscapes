@@ -4,6 +4,7 @@
 
 import { CONFIG } from './config.js';
 import { getCell } from './sound-cells.js';
+import { loadAllSamples } from './sample-engine.js';
 
 const LOOKAHEAD_SEC = 0.05;
 
@@ -120,11 +121,18 @@ export class AudioEngine {
     const verb = this._buildReverb();
     if (verb) {
       const wet = this.ctx.createGain();
-      wet.gain.value = 0.18;
+      wet.gain.value = 0.12;
       this.masterBus.connect(verb).connect(wet).connect(this.ctx.destination);
     }
     // Dry path
     this.masterBus.connect(this.ctx.destination);
+
+    // Load all sample buffers before scheduling. Emits progress events.
+    this._emit('loading', { loaded: 0, total: 0 });
+    const loaded = await loadAllSamples(this.ctx, (n, total, id) => {
+      this._emit('loading', { loaded: n, total, current: id });
+    });
+    this._emit('loaded', { loaded });
 
     // Create voices
     this.voices = [];

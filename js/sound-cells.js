@@ -1,101 +1,103 @@
-// Soundscapes — sound-cell definitions per performer.
+// Soundscapes — sample-based cell definitions per performer.
 //
-// Each performer has an array of cells. Cell 0 is silence. Higher indexes
-// = denser / more intense. Each cell exposes:
-//   - id, label
-//   - duration: loop length in seconds
-//   - schedule(ctx, dest, startTime, volume) — schedules events for one loop
-//
-// Randomness lives inside the synth primitives, so the same cell never plays
-// the same way twice.
+// Each cell schedule fn receives (ctx, dest, t0, vol) and arranges a set
+// of sample playbacks across one loop period. Random start offsets,
+// pitches, pans, and gains inside each scheduling call ensure no two
+// loops sound identical.
 
-import { SYNTH } from './synth-sources.js';
+import { oneShot, ambientBed } from './sample-engine.js';
 
 const rnd = (a, b) => a + Math.random() * (b - a);
-
-// Helper: schedule N events spaced randomly within [0, duration]
-function scheduleScattered(count, duration, fn) {
-  const times = [];
-  for (let i = 0; i < count; i++) times.push(Math.random() * duration);
-  times.sort((a, b) => a - b);
-  return times.map(t => ({ t, fn }));
-}
-
-// Each cell schedule fn returns nothing — it just fires synth functions
-// at offsets from startTime.
+const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
 // =============================================================
 // BIRDS
 // =============================================================
 
 const birdsCells = [
-  {
-    id: 'birds-0',
-    label: 'silent',
-    duration: 6,
-    schedule: () => {},
-  },
+  { id: 'birds-0', label: 'silent', duration: 6, schedule: () => {} },
   {
     id: 'birds-1',
     label: 'distant chirp',
-    duration: 8,
+    duration: 9,
     schedule: (ctx, dest, t0, vol) => {
-      // 1 chirp per loop, from very far (low amp)
-      const t = t0 + rnd(1, 6);
-      SYNTH.birdChirp(ctx, dest, t, { volume: 0.4 * vol });
+      // Sparse: a single one-shot from one of the short bird files
+      const id = pick(['robin', 'common-blackbird']);
+      oneShot(ctx, dest, id, t0 + rnd(2, 6), {
+        gain: rnd(0.18, 0.32) * vol,
+        pitchSpread: 0.1,
+        panSpread: 0.7,
+      });
     },
   },
   {
     id: 'birds-2',
     label: 'two voices',
-    duration: 7,
+    duration: 9,
     schedule: (ctx, dest, t0, vol) => {
-      SYNTH.birdChirp(ctx, dest, t0 + rnd(0, 3), { volume: 0.55 * vol, pitchStart: rnd(2200, 2800) });
-      SYNTH.birdCall(ctx, dest, t0 + rnd(3, 6), { volume: 0.55 * vol, baseFreq: rnd(1500, 2000) });
-      if (Math.random() < 0.4) {
-        SYNTH.birdTrill(ctx, dest, t0 + rnd(0, 6), { volume: 0.5 * vol });
-      }
+      // Two distinct calls + faint evening-bird ambience
+      oneShot(ctx, dest, 'robin', t0 + rnd(0, 4), {
+        gain: rnd(0.32, 0.5) * vol,
+        pitchSpread: 0.12,
+      });
+      oneShot(ctx, dest, 'common-blackbird', t0 + rnd(3, 8), {
+        gain: rnd(0.32, 0.5) * vol,
+        pitchSpread: 0.1,
+      });
+      ambientBed(ctx, dest, 'evening-birds', t0, 9, {
+        gain: 0.18 * vol,
+        fadeIn: 0.8,
+        fadeOut: 0.8,
+      });
     },
   },
   {
     id: 'birds-3',
     label: 'overlapping calls',
-    duration: 7,
+    duration: 9,
     schedule: (ctx, dest, t0, vol) => {
-      const events = [
-        () => SYNTH.birdChirp(ctx, dest, 0, { volume: 0.7 * vol }),
-        () => SYNTH.birdCall(ctx, dest, 0, { volume: 0.7 * vol }),
-        () => SYNTH.birdTrill(ctx, dest, 0, { volume: 0.6 * vol }),
-        () => SYNTH.birdChirp(ctx, dest, 0, { volume: 0.6 * vol, pitchStart: rnd(2400, 3200) }),
-      ];
-      // Schedule each event at its own random time
-      for (let i = 0; i < 5; i++) {
-        const fn = events[Math.floor(Math.random() * events.length)];
-        const t = t0 + rnd(0, 6);
-        // Inline rebind to apply real time
-        if (fn === events[0]) SYNTH.birdChirp(ctx, dest, t, { volume: 0.7 * vol });
-        else if (fn === events[1]) SYNTH.birdCall(ctx, dest, t, { volume: 0.7 * vol });
-        else if (fn === events[2]) SYNTH.birdTrill(ctx, dest, t, { volume: 0.6 * vol });
-        else SYNTH.birdChirp(ctx, dest, t, { volume: 0.6 * vol, pitchStart: rnd(2400, 3200) });
+      ambientBed(ctx, dest, 'evening-birds', t0, 9, {
+        gain: 0.32 * vol,
+        fadeIn: 0.6,
+        fadeOut: 0.6,
+      });
+      // 3-4 punctuating calls
+      const calls = ['robin', 'common-blackbird'];
+      for (let i = 0; i < 4; i++) {
+        oneShot(ctx, dest, pick(calls), t0 + rnd(0, 8), {
+          gain: rnd(0.35, 0.55) * vol,
+          pitchSpread: 0.18,
+        });
       }
     },
   },
   {
     id: 'birds-4',
     label: 'dawn chorus',
-    duration: 6,
+    duration: 9,
     schedule: (ctx, dest, t0, vol) => {
-      // Dense: ~12 events
-      for (let i = 0; i < 12; i++) {
-        const t = t0 + rnd(0, 5.5);
-        const r = Math.random();
-        if (r < 0.4) {
-          SYNTH.birdChirp(ctx, dest, t, { volume: 0.7 * vol, pitchStart: rnd(2000, 3500) });
-        } else if (r < 0.7) {
-          SYNTH.birdTrill(ctx, dest, t, { volume: 0.65 * vol, baseFreq: rnd(1800, 3000) });
-        } else {
-          SYNTH.birdCall(ctx, dest, t, { volume: 0.6 * vol, baseFreq: rnd(1300, 2200) });
-        }
+      // Full awakening-birds bed plus extra calls
+      ambientBed(ctx, dest, 'awakening-birds', t0, 9, {
+        gain: 0.55 * vol,
+        fadeIn: 0.5,
+        fadeOut: 0.5,
+        pitchSpread: 0.06,
+      });
+      // Layered second copy at slightly different pitch for thickness
+      ambientBed(ctx, dest, 'evening-birds', t0 + 0.5, 8, {
+        gain: 0.28 * vol,
+        fadeIn: 0.6,
+        fadeOut: 0.6,
+        pitchSpread: 0.08,
+        pan: rnd(-0.5, 0.5),
+      });
+      // A few foreground calls
+      const calls = ['robin', 'common-blackbird'];
+      for (let i = 0; i < 5; i++) {
+        oneShot(ctx, dest, pick(calls), t0 + rnd(0, 8), {
+          gain: rnd(0.4, 0.6) * vol,
+          pitchSpread: 0.2,
+        });
       }
     },
   },
@@ -106,60 +108,70 @@ const birdsCells = [
 // =============================================================
 
 const windCells = [
-  {
-    id: 'wind-0',
-    label: 'silent',
-    duration: 6,
-    schedule: () => {},
-  },
+  { id: 'wind-0', label: 'silent', duration: 6, schedule: () => {} },
   {
     id: 'wind-1',
     label: 'faint rustle',
-    duration: 8,
+    duration: 10,
     schedule: (ctx, dest, t0, vol) => {
-      // A handful of leaf rustles, very quiet
-      for (let i = 0; i < 3; i++) {
-        const t = t0 + rnd(0, 7);
-        SYNTH.leafRustle(ctx, dest, t, { volume: 0.35 * vol, amp: rnd(0.1, 0.18) });
-      }
+      ambientBed(ctx, dest, 'wind-tree-squeaks', t0, 10, {
+        gain: 0.18 * vol,
+        fadeIn: 1.5,
+        fadeOut: 1.5,
+        pitchSpread: 0.04,
+      });
     },
   },
   {
     id: 'wind-2',
     label: 'breeze',
-    duration: 8,
+    duration: 10,
     schedule: (ctx, dest, t0, vol) => {
-      SYNTH.windGust(ctx, dest, t0, { duration: 7, amp: 0.2 * vol, volume: vol });
-      // a few rustles riding the gust
-      for (let i = 0; i < 4; i++) {
-        SYNTH.leafRustle(ctx, dest, t0 + rnd(0, 7), { volume: 0.4 * vol });
-      }
+      ambientBed(ctx, dest, 'wind', t0, 10, {
+        gain: 0.32 * vol,
+        fadeIn: 1.0,
+        fadeOut: 1.0,
+        pitchSpread: 0.05,
+      });
     },
   },
   {
     id: 'wind-3',
-    label: 'steady wind',
-    duration: 8,
+    label: 'wind in trees',
+    duration: 10,
     schedule: (ctx, dest, t0, vol) => {
-      // Two overlapping gusts for continuous bed
-      SYNTH.windGust(ctx, dest, t0, { duration: 8, amp: 0.28 * vol, volume: vol, cutoffPeak: rnd(1000, 1600) });
-      SYNTH.windGust(ctx, dest, t0 + 4, { duration: 6, amp: 0.22 * vol, volume: vol, cutoffPeak: rnd(800, 1300) });
-      for (let i = 0; i < 8; i++) {
-        SYNTH.leafRustle(ctx, dest, t0 + rnd(0, 7.5), { volume: 0.45 * vol });
-      }
+      ambientBed(ctx, dest, 'wind-in-trees', t0, 10, {
+        gain: 0.45 * vol,
+        fadeIn: 0.8,
+        fadeOut: 0.8,
+        pitchSpread: 0.04,
+      });
+      // Subtle squeaks layered on top, panned the other way
+      ambientBed(ctx, dest, 'wind-tree-squeaks', t0 + 1, 8, {
+        gain: 0.2 * vol,
+        fadeIn: 1.0,
+        fadeOut: 1.0,
+        pan: rnd(-0.6, 0.6),
+      });
     },
   },
   {
     id: 'wind-4',
     label: 'gusts in the canopy',
-    duration: 8,
+    duration: 10,
     schedule: (ctx, dest, t0, vol) => {
-      SYNTH.windGust(ctx, dest, t0, { duration: 8, amp: 0.35 * vol, volume: vol, cutoffPeak: rnd(1200, 2000) });
-      SYNTH.windGust(ctx, dest, t0 + rnd(1, 3), { duration: 5, amp: 0.32 * vol, volume: vol, cutoffPeak: rnd(900, 1500) });
-      // Lots of rustle activity
-      for (let i = 0; i < 14; i++) {
-        SYNTH.leafRustle(ctx, dest, t0 + rnd(0, 7.5), { volume: 0.55 * vol, amp: rnd(0.25, 0.45) });
-      }
+      ambientBed(ctx, dest, 'wind-in-trees', t0, 10, {
+        gain: 0.6 * vol,
+        fadeIn: 0.4,
+        fadeOut: 0.6,
+        pitchSpread: 0.06,
+      });
+      ambientBed(ctx, dest, 'wind', t0 + rnd(0.5, 2), 8, {
+        gain: 0.4 * vol,
+        fadeIn: 0.5,
+        fadeOut: 0.5,
+        pan: rnd(-0.6, 0.6),
+      });
     },
   },
 ];
@@ -169,59 +181,67 @@ const windCells = [
 // =============================================================
 
 const waterCells = [
-  {
-    id: 'water-0',
-    label: 'silent',
-    duration: 6,
-    schedule: () => {},
-  },
+  { id: 'water-0', label: 'silent', duration: 6, schedule: () => {} },
   {
     id: 'water-1',
-    label: 'occasional drip',
-    duration: 8,
+    label: 'distant trickle',
+    duration: 10,
     schedule: (ctx, dest, t0, vol) => {
-      const count = Math.floor(rnd(1, 3));
-      for (let i = 0; i < count; i++) {
-        SYNTH.drip(ctx, dest, t0 + rnd(0.5, 7), {
-          volume: 0.5 * vol,
-          pitchStart: rnd(800, 1400),
-        });
-      }
+      ambientBed(ctx, dest, 'brooklet', t0, 10, {
+        gain: 0.2 * vol,
+        fadeIn: 1.5,
+        fadeOut: 1.5,
+        pitchSpread: 0.03,
+      });
     },
   },
   {
     id: 'water-2',
-    label: 'trickle',
-    duration: 8,
+    label: 'small stream',
+    duration: 10,
     schedule: (ctx, dest, t0, vol) => {
-      // many small drips
-      for (let i = 0; i < 12; i++) {
-        SYNTH.drip(ctx, dest, t0 + rnd(0, 7.5), {
-          volume: 0.4 * vol,
-          pitchStart: rnd(700, 1500),
-          duration: rnd(0.06, 0.12),
-        });
-      }
+      ambientBed(ctx, dest, 'small-stream', t0, 10, {
+        gain: 0.32 * vol,
+        fadeIn: 1.0,
+        fadeOut: 1.0,
+        pitchSpread: 0.03,
+      });
     },
   },
   {
     id: 'water-3',
     label: 'brook',
-    duration: 8,
+    duration: 10,
     schedule: (ctx, dest, t0, vol) => {
-      SYNTH.streamFlow(ctx, dest, t0, { duration: 8, amp: 0.22 * vol, volume: vol });
+      ambientBed(ctx, dest, 'small-stream', t0, 10, {
+        gain: 0.42 * vol,
+        fadeIn: 0.8,
+        fadeOut: 0.8,
+      });
+      ambientBed(ctx, dest, 'brooklet', t0 + 0.5, 9, {
+        gain: 0.25 * vol,
+        fadeIn: 1.0,
+        fadeOut: 1.0,
+        pan: rnd(-0.5, 0.5),
+      });
     },
   },
   {
     id: 'water-4',
-    label: 'bubbling rapids',
-    duration: 8,
+    label: 'cascade',
+    duration: 10,
     schedule: (ctx, dest, t0, vol) => {
-      SYNTH.streamFlow(ctx, dest, t0, { duration: 8, amp: 0.28 * vol, volume: vol });
-      // heavier bubbling on top
-      for (let i = 0; i < 4; i++) {
-        SYNTH.bubbleCluster(ctx, dest, t0 + rnd(0, 7), { volume: 0.55 * vol });
-      }
+      ambientBed(ctx, dest, 'small-cascade', t0, 10, {
+        gain: 0.52 * vol,
+        fadeIn: 0.6,
+        fadeOut: 0.6,
+      });
+      ambientBed(ctx, dest, 'small-stream', t0 + 1, 8, {
+        gain: 0.3 * vol,
+        fadeIn: 0.8,
+        fadeOut: 0.8,
+        pan: rnd(-0.5, 0.5),
+      });
     },
   },
 ];
@@ -235,45 +255,73 @@ const insectsCells = [
   {
     id: 'insects-1',
     label: 'lone cricket',
-    duration: 8,
+    duration: 10,
     schedule: (ctx, dest, t0, vol) => {
-      const count = Math.floor(rnd(2, 4));
+      // A single one-shot cricket call (or two)
+      const count = Math.floor(rnd(1, 3));
       for (let i = 0; i < count; i++) {
-        SYNTH.cricket(ctx, dest, t0 + rnd(0, 7), { volume: 0.45 * vol });
+        oneShot(ctx, dest, 'nocturnal-insect', t0 + rnd(0, 8), {
+          gain: rnd(0.32, 0.5) * vol,
+          pitchSpread: 0.1,
+        });
       }
     },
   },
   {
     id: 'insects-2',
     label: 'several crickets',
-    duration: 8,
+    duration: 10,
     schedule: (ctx, dest, t0, vol) => {
-      for (let i = 0; i < 7; i++) {
-        SYNTH.cricket(ctx, dest, t0 + rnd(0, 7.5), { volume: 0.5 * vol, freq: rnd(4000, 5500) });
+      ambientBed(ctx, dest, 'field-cricket', t0, 10, {
+        gain: 0.28 * vol,
+        fadeIn: 1.0,
+        fadeOut: 1.0,
+        pitchSpread: 0.05,
+      });
+      // a few one-shots for closer, distinct calls
+      for (let i = 0; i < 3; i++) {
+        oneShot(ctx, dest, 'nocturnal-insect', t0 + rnd(0, 8), {
+          gain: rnd(0.25, 0.4) * vol,
+          pitchSpread: 0.12,
+        });
       }
     },
   },
   {
     id: 'insects-3',
-    label: 'cricket + cicada',
-    duration: 8,
+    label: 'cricket chorus',
+    duration: 10,
     schedule: (ctx, dest, t0, vol) => {
-      SYNTH.cicadaBuzz(ctx, dest, t0 + rnd(0, 1), { duration: rnd(3, 5), volume: 0.5 * vol });
-      for (let i = 0; i < 10; i++) {
-        SYNTH.cricket(ctx, dest, t0 + rnd(0, 7.5), { volume: 0.5 * vol });
-      }
+      ambientBed(ctx, dest, 'nocturnal-insects', t0, 10, {
+        gain: 0.4 * vol,
+        fadeIn: 0.8,
+        fadeOut: 0.8,
+      });
+      ambientBed(ctx, dest, 'field-cricket', t0 + 0.5, 9, {
+        gain: 0.22 * vol,
+        fadeIn: 1.0,
+        fadeOut: 1.0,
+        pan: rnd(-0.5, 0.5),
+      });
     },
   },
   {
     id: 'insects-4',
     label: 'full chorus',
-    duration: 8,
+    duration: 10,
     schedule: (ctx, dest, t0, vol) => {
-      SYNTH.cicadaBuzz(ctx, dest, t0, { duration: 7, volume: 0.6 * vol });
-      SYNTH.cicadaBuzz(ctx, dest, t0 + 2, { duration: 5, volume: 0.5 * vol });
-      for (let i = 0; i < 18; i++) {
-        SYNTH.cricket(ctx, dest, t0 + rnd(0, 7.5), { volume: 0.55 * vol, freq: rnd(3800, 5500) });
-      }
+      ambientBed(ctx, dest, 'nocturnal-insects', t0, 10, {
+        gain: 0.55 * vol,
+        fadeIn: 0.5,
+        fadeOut: 0.6,
+      });
+      ambientBed(ctx, dest, 'field-cricket', t0 + 0.3, 9, {
+        gain: 0.35 * vol,
+        fadeIn: 0.7,
+        fadeOut: 0.7,
+        pan: rnd(-0.6, 0.6),
+        pitchSpread: 0.05,
+      });
     },
   },
 ];
@@ -287,127 +335,163 @@ const amphibiansCells = [
   {
     id: 'amph-1',
     label: 'distant croak',
-    duration: 8,
+    duration: 10,
     schedule: (ctx, dest, t0, vol) => {
-      SYNTH.frogCroak(ctx, dest, t0 + rnd(2, 6), { volume: 0.4 * vol, freq: rnd(180, 240) });
+      oneShot(ctx, dest, 'one-frog', t0 + rnd(2, 7), {
+        gain: rnd(0.28, 0.45) * vol,
+        pitchSpread: 0.08,
+      });
     },
   },
   {
     id: 'amph-2',
     label: 'trading frogs',
-    duration: 8,
+    duration: 10,
     schedule: (ctx, dest, t0, vol) => {
-      const count = Math.floor(rnd(3, 5));
-      for (let i = 0; i < count; i++) {
-        SYNTH.frogCroak(ctx, dest, t0 + rnd(0, 7), {
-          volume: 0.5 * vol,
-          freq: rnd(170, 280),
+      // Multiple one-frog calls panned around + faint chorus
+      for (let i = 0; i < 3; i++) {
+        oneShot(ctx, dest, 'one-frog', t0 + rnd(0, 9), {
+          gain: rnd(0.32, 0.5) * vol,
+          pitchSpread: 0.15,
+          panSpread: 0.7,
         });
       }
+      ambientBed(ctx, dest, 'frogs-1', t0, 10, {
+        gain: 0.18 * vol,
+        fadeIn: 1.5,
+        fadeOut: 1.5,
+      });
     },
   },
   {
     id: 'amph-3',
     label: 'pond chorus',
-    duration: 8,
+    duration: 10,
     schedule: (ctx, dest, t0, vol) => {
-      for (let i = 0; i < 8; i++) {
-        SYNTH.frogCroak(ctx, dest, t0 + rnd(0, 7.5), {
-          volume: 0.55 * vol,
-          freq: rnd(160, 290),
+      ambientBed(ctx, dest, 'frogs-1', t0, 10, {
+        gain: 0.4 * vol,
+        fadeIn: 0.8,
+        fadeOut: 0.8,
+      });
+      // a few pluck-out calls on top
+      for (let i = 0; i < 2; i++) {
+        oneShot(ctx, dest, 'one-frog', t0 + rnd(0, 9), {
+          gain: rnd(0.3, 0.45) * vol,
+          pitchSpread: 0.12,
         });
-      }
-      if (Math.random() < 0.5) {
-        SYNTH.bullfrog(ctx, dest, t0 + rnd(1, 6), { volume: 0.6 * vol });
       }
     },
   },
   {
     id: 'amph-4',
-    label: 'peak activity',
-    duration: 8,
+    label: 'peak chorus',
+    duration: 10,
     schedule: (ctx, dest, t0, vol) => {
-      for (let i = 0; i < 14; i++) {
-        SYNTH.frogCroak(ctx, dest, t0 + rnd(0, 7.5), {
-          volume: 0.55 * vol,
-          freq: rnd(150, 300),
-        });
-      }
-      SYNTH.bullfrog(ctx, dest, t0 + rnd(0, 4), { volume: 0.7 * vol });
-      SYNTH.bullfrog(ctx, dest, t0 + rnd(4, 7), { volume: 0.6 * vol });
+      ambientBed(ctx, dest, 'frogs-2', t0, 10, {
+        gain: 0.5 * vol,
+        fadeIn: 0.5,
+        fadeOut: 0.6,
+      });
+      ambientBed(ctx, dest, 'frogs-1', t0 + 0.5, 9, {
+        gain: 0.32 * vol,
+        fadeIn: 0.8,
+        fadeOut: 0.8,
+        pan: rnd(-0.5, 0.5),
+        pitchSpread: 0.05,
+      });
     },
   },
 ];
 
 // =============================================================
-// LEAVES (large rustles, footsteps, things moving on the ground)
+// LEAVES (footsteps + things moving through underbrush)
 // =============================================================
 
 const leavesCells = [
   { id: 'leaves-0', label: 'silent', duration: 6, schedule: () => {} },
   {
     id: 'leaves-1',
-    label: 'occasional rustle',
-    duration: 8,
+    label: 'footstep',
+    duration: 10,
     schedule: (ctx, dest, t0, vol) => {
-      const count = Math.floor(rnd(2, 4));
-      for (let i = 0; i < count; i++) {
-        SYNTH.leafRustle(ctx, dest, t0 + rnd(0, 7.5), { volume: 0.5 * vol });
-      }
+      // One brief excerpt from feet-in-leaves, played with a short window
+      oneShot(ctx, dest, 'feet-in-leaves', t0 + rnd(2, 6), {
+        gain: rnd(0.3, 0.45) * vol,
+        duration: rnd(1.2, 2.0),
+        offset: rnd(0, 4),
+        pitchSpread: 0.08,
+        fadeIn: 0.05,
+        fadeOut: 0.4,
+      });
     },
   },
   {
     id: 'leaves-2',
-    label: 'footsteps',
-    duration: 8,
+    label: 'someone walking',
+    duration: 10,
     schedule: (ctx, dest, t0, vol) => {
-      // a sequence of footstep crunches
-      const stepStart = rnd(1, 3);
-      const stepCount = Math.floor(rnd(3, 6));
-      for (let i = 0; i < stepCount; i++) {
-        SYNTH.footstepCrunch(ctx, dest, t0 + stepStart + i * rnd(0.5, 0.8), {
-          volume: 0.55 * vol,
-        });
-      }
-      for (let i = 0; i < 3; i++) {
-        SYNTH.leafRustle(ctx, dest, t0 + rnd(0, 7), { volume: 0.45 * vol });
-      }
+      // A continuous walking segment ~4-5s
+      oneShot(ctx, dest, 'feet-in-leaves', t0 + rnd(1, 3), {
+        gain: rnd(0.42, 0.58) * vol,
+        duration: rnd(3.5, 5),
+        offset: rnd(0, 4),
+        pitchSpread: 0.06,
+        fadeIn: 0.2,
+        fadeOut: 0.5,
+      });
     },
   },
   {
     id: 'leaves-3',
-    label: 'continuous rustling',
-    duration: 8,
+    label: 'movement nearby',
+    duration: 10,
     schedule: (ctx, dest, t0, vol) => {
-      for (let i = 0; i < 10; i++) {
-        SYNTH.leafRustle(ctx, dest, t0 + rnd(0, 7.5), { volume: 0.55 * vol });
-      }
-      for (let i = 0; i < 2; i++) {
-        SYNTH.footstepCrunch(ctx, dest, t0 + rnd(1, 7), { volume: 0.5 * vol });
-      }
+      // Two overlapping walking segments, panned apart
+      oneShot(ctx, dest, 'feet-in-leaves', t0 + rnd(0, 2), {
+        gain: rnd(0.4, 0.55) * vol,
+        duration: rnd(4, 6),
+        offset: rnd(0, 4),
+        pan: rnd(-0.7, -0.2),
+        pitchSpread: 0.06,
+        fadeIn: 0.2,
+        fadeOut: 0.6,
+      });
+      oneShot(ctx, dest, 'feet-in-leaves-2', t0 + rnd(2, 4), {
+        gain: rnd(0.35, 0.5) * vol,
+        duration: rnd(3, 5),
+        offset: rnd(0, 4),
+        pan: rnd(0.2, 0.7),
+        pitchSpread: 0.07,
+        fadeIn: 0.2,
+        fadeOut: 0.6,
+      });
     },
   },
   {
     id: 'leaves-4',
     label: 'something moves',
-    duration: 8,
+    duration: 10,
     schedule: (ctx, dest, t0, vol) => {
-      for (let i = 0; i < 16; i++) {
-        SYNTH.leafRustle(ctx, dest, t0 + rnd(0, 7.5), { volume: 0.6 * vol });
-      }
-      // a flurry of footsteps mid-loop
-      const burst = rnd(2, 5);
-      for (let i = 0; i < 6; i++) {
-        SYNTH.footstepCrunch(ctx, dest, t0 + burst + i * rnd(0.18, 0.32), {
-          volume: 0.6 * vol,
-        });
-      }
+      // Heavy continuous activity using both leaf samples as bed
+      ambientBed(ctx, dest, 'feet-in-leaves', t0, 10, {
+        gain: 0.45 * vol,
+        fadeIn: 0.4,
+        fadeOut: 0.6,
+        pan: rnd(-0.5, 0),
+      });
+      ambientBed(ctx, dest, 'feet-in-leaves-2', t0 + 0.3, 9, {
+        gain: 0.4 * vol,
+        fadeIn: 0.5,
+        fadeOut: 0.6,
+        pan: rnd(0, 0.5),
+        pitchSpread: 0.06,
+      });
     },
   },
 ];
 
 // =============================================================
-// ATMOSPHERE (thunder, owls)
+// ATMOSPHERE (thunder + owls)
 // =============================================================
 
 const atmosphereCells = [
@@ -415,13 +499,15 @@ const atmosphereCells = [
   {
     id: 'atm-1',
     label: 'distant rumble',
-    duration: 10,
+    duration: 12,
     schedule: (ctx, dest, t0, vol) => {
       if (Math.random() < 0.7) {
-        SYNTH.thunderRumble(ctx, dest, t0 + rnd(0, 4), {
-          duration: rnd(3, 5),
-          amp: 0.18 * vol,
-          volume: vol,
+        oneShot(ctx, dest, 'thunder', t0 + rnd(0, 4), {
+          gain: rnd(0.25, 0.4) * vol,
+          pitch: rnd(0.85, 0.95), // pitched-down for distance
+          pitchSpread: 0,
+          fadeIn: 0.3,
+          fadeOut: 1.2,
         });
       }
     },
@@ -429,22 +515,20 @@ const atmosphereCells = [
   {
     id: 'atm-2',
     label: 'owl hoot',
-    duration: 10,
+    duration: 12,
     schedule: (ctx, dest, t0, vol) => {
-      // 1-2 hoots in series
-      const hoots = Math.floor(rnd(1, 3));
-      const start = rnd(2, 6);
-      for (let i = 0; i < hoots; i++) {
-        SYNTH.owlHoot(ctx, dest, t0 + start + i * rnd(0.7, 1.2), {
-          freq: rnd(220, 320),
-          volume: 0.5 * vol,
-        });
-      }
+      const id = pick(['tawny-owl', 'long-eared-owl']);
+      oneShot(ctx, dest, id, t0 + rnd(2, 7), {
+        gain: rnd(0.4, 0.55) * vol,
+        pitchSpread: 0.06,
+        panSpread: 0.5,
+      });
       if (Math.random() < 0.4) {
-        SYNTH.thunderRumble(ctx, dest, t0 + rnd(0, 5), {
-          duration: rnd(2, 4),
-          amp: 0.15 * vol,
-          volume: vol,
+        oneShot(ctx, dest, 'thunder', t0 + rnd(0, 5), {
+          gain: rnd(0.2, 0.3) * vol,
+          pitch: rnd(0.85, 0.95),
+          fadeIn: 0.4,
+          fadeOut: 1.2,
         });
       }
     },
@@ -452,86 +536,55 @@ const atmosphereCells = [
   {
     id: 'atm-3',
     label: 'thunder + owl',
-    duration: 10,
+    duration: 12,
     schedule: (ctx, dest, t0, vol) => {
-      SYNTH.thunderRumble(ctx, dest, t0 + rnd(0, 3), {
-        duration: rnd(3, 5),
-        amp: 0.25 * vol,
-        volume: vol,
+      oneShot(ctx, dest, 'thunder', t0 + rnd(0, 3), {
+        gain: rnd(0.4, 0.55) * vol,
+        pitch: rnd(0.9, 1.0),
+        fadeIn: 0.2,
+        fadeOut: 1.5,
       });
-      SYNTH.owlHoot(ctx, dest, t0 + rnd(3, 7), { volume: 0.55 * vol });
-      if (Math.random() < 0.4) {
-        SYNTH.owlHoot(ctx, dest, t0 + rnd(5, 9), {
-          freq: rnd(260, 350),
-          volume: 0.5 * vol,
+      const owlId = pick(['tawny-owl', 'long-eared-owl']);
+      oneShot(ctx, dest, owlId, t0 + rnd(4, 9), {
+        gain: rnd(0.45, 0.6) * vol,
+        pitchSpread: 0.08,
+      });
+      if (Math.random() < 0.5) {
+        const owl2 = pick(['tawny-owl', 'long-eared-owl']);
+        oneShot(ctx, dest, owl2, t0 + rnd(7, 11), {
+          gain: rnd(0.4, 0.55) * vol,
+          pitchSpread: 0.1,
+          panSpread: 0.7,
         });
       }
     },
   },
   {
     id: 'atm-4',
-    label: 'thunder closer',
-    duration: 10,
+    label: 'storm closer',
+    duration: 12,
     schedule: (ctx, dest, t0, vol) => {
-      SYNTH.thunderRumble(ctx, dest, t0, { duration: rnd(4, 6), amp: 0.4 * vol, volume: vol });
-      SYNTH.thunderRumble(ctx, dest, t0 + rnd(4, 6), {
-        duration: rnd(3, 5),
-        amp: 0.3 * vol,
-        volume: vol,
+      oneShot(ctx, dest, 'thunder', t0 + rnd(0, 1), {
+        gain: rnd(0.55, 0.75) * vol,
+        pitch: rnd(0.95, 1.05),
+        fadeIn: 0.1,
+        fadeOut: 1.5,
       });
-      SYNTH.owlHoot(ctx, dest, t0 + rnd(1, 4), { volume: 0.5 * vol });
-      SYNTH.owlHoot(ctx, dest, t0 + rnd(5, 9), { volume: 0.5 * vol });
-    },
-  },
-];
-
-// =============================================================
-// CREATURES (squirrels, distant howl, distant bark)
-// =============================================================
-
-const creaturesCells = [
-  { id: 'cre-0', label: 'silent', duration: 6, schedule: () => {} },
-  {
-    id: 'cre-1',
-    label: 'squirrel chitter',
-    duration: 8,
-    schedule: (ctx, dest, t0, vol) => {
-      SYNTH.squirrelChitter(ctx, dest, t0 + rnd(1, 5), { volume: 0.5 * vol });
-    },
-  },
-  {
-    id: 'cre-2',
-    label: 'a distant bark',
-    duration: 8,
-    schedule: (ctx, dest, t0, vol) => {
-      if (Math.random() < 0.6) {
-        SYNTH.distantBark(ctx, dest, t0 + rnd(2, 5), { volume: 0.5 * vol });
-      }
-      SYNTH.squirrelChitter(ctx, dest, t0 + rnd(0, 6), { volume: 0.5 * vol });
-    },
-  },
-  {
-    id: 'cre-3',
-    label: 'paws & barks',
-    duration: 8,
-    schedule: (ctx, dest, t0, vol) => {
-      SYNTH.distantBark(ctx, dest, t0 + rnd(0, 5), { volume: 0.55 * vol });
-      SYNTH.squirrelChitter(ctx, dest, t0 + rnd(0, 6), { volume: 0.55 * vol });
-      if (Math.random() < 0.5) {
-        SYNTH.squirrelChitter(ctx, dest, t0 + rnd(2, 7), { volume: 0.5 * vol });
-      }
-    },
-  },
-  {
-    id: 'cre-4',
-    label: 'distant howl',
-    duration: 10,
-    schedule: (ctx, dest, t0, vol) => {
-      SYNTH.distantHowl(ctx, dest, t0 + rnd(2, 5), { volume: 0.6 * vol });
-      SYNTH.squirrelChitter(ctx, dest, t0 + rnd(0, 9), { volume: 0.5 * vol });
-      if (Math.random() < 0.4) {
-        SYNTH.distantBark(ctx, dest, t0 + rnd(5, 9), { volume: 0.5 * vol });
-      }
+      oneShot(ctx, dest, 'thunder', t0 + rnd(5, 8), {
+        gain: rnd(0.5, 0.7) * vol,
+        pitch: rnd(0.9, 1.0),
+        fadeIn: 0.15,
+        fadeOut: 1.3,
+        pan: rnd(-0.5, 0.5),
+      });
+      oneShot(ctx, dest, 'tawny-owl', t0 + rnd(2, 5), {
+        gain: rnd(0.45, 0.6) * vol,
+        pitchSpread: 0.08,
+      });
+      oneShot(ctx, dest, 'long-eared-owl', t0 + rnd(6, 10), {
+        gain: rnd(0.4, 0.55) * vol,
+        pitchSpread: 0.1,
+      });
     },
   },
 ];
@@ -546,7 +599,6 @@ export const CELLS_BY_CATEGORY = {
   amphibians: amphibiansCells,
   leaves: leavesCells,
   atmosphere: atmosphereCells,
-  creatures: creaturesCells,
 };
 
 export function getCells(categoryId) {
